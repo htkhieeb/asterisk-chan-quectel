@@ -1462,7 +1462,7 @@ int at_enqueue_uac_apply(struct cpvt* cpvt)
 
     static const at_queue_cmd_t cmds[] = {
         ATQ_CMD_DECLARE_ST(CMD_AT_QPCMV_0, qpcmv0),
-        ATQ_CMD_DECLARE_ST(CMD_AT_QRXGAIN, cfun),
+        ATQ_CMD_DECLARE_ST(CMD_AT_CFUN, cfun),
     };
 
     if (at_queue_insert_const_at_once(cpvt, cmds, ARRAY_LEN(cmds), 0)) {
@@ -1797,7 +1797,7 @@ int at_enqueue_qrxgain(struct cpvt* cpvt, int gain)
 int at_enqueue_query_coutgain(struct cpvt* cpvt)
 {
     DECLARE_AT_CMD(coutgain, "+COUTGAIN?");
-    static const at_queue_cmd_t cmd = ATQ_CMD_DECLARE_ST(CMD_AT_QRXGAIN, coutgain);
+    static const at_queue_cmd_t cmd = ATQ_CMD_DECLARE_ST(CMD_AT_COUTGAIN, coutgain);
 
     if (at_queue_insert_const(cpvt, &cmd, 1u, 0)) {
         chan_quectel_err = E_QUEUE;
