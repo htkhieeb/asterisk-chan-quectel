@@ -40,7 +40,7 @@ jobs:
           V: s
           FIXUP: 1
 
-      - name: List generated files
+      - name: List-generated-files
         run: |
           echo "=== Searching for compiled packages ==="
           find . -name "*.apk" -o -name "*.ipk"
