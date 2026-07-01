@@ -10,8 +10,12 @@ jobs:
     strategy:
       matrix:
         arch:
-          - mediatek-filogic
+          - aarch64_generic
+          - mips_24kc
+          - x86_64
         branch:
+          - SNAPSHOT
+          - openwrt-25.12
           - openwrt-24.10
 
     steps:
