@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         arch:
-          - mediatek-filogic
+          - aarch64_cortex-a53
         branch:
           - 24.10.0
 
