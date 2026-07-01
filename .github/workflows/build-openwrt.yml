@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         arch:
-          - mediatec-filogic
+          - mediatek-filogic
         branch:
           - 24.10.0
 
