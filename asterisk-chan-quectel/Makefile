@@ -5,7 +5,7 @@ PKG_VERSION:=1.0.0
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/harinworks-org/asterisk-chan-quectel
+PKG_SOURCE_URL:=https://github.com/htkhieeb/asterisk-chan-quectel
 PKG_SOURCE_VERSION:=master
 PKG_MIRROR_HASH:=skip
 
