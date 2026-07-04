@@ -71,7 +71,7 @@ static int msg_send(const struct ast_msg* msg, const char* to, attribute_unused 
     char* dest = ast_strdupa(to);
     strsep(&dest, ":");
 
-    if (!ast_msg_has_destination(msg)) {
+    if (ast_msg_has_destination(msg) == 0) {
         ast_log(LOG_ERROR, "Destination number not specified\n");
         return -1;
     }
