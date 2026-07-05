@@ -802,11 +802,6 @@ static int channel_write(struct ast_channel* channel, struct ast_frame* f)
     if (!cpvt || cpvt->channel != channel || !cpvt->pvt || CPVT_IS_LOCAL(cpvt)) {
         return 0;
     }
-
-    // CRITICAL CRASH TRIGGER: Force this write thread to sleep for 50 milliseconds.
-    // This guarantees channel_hangup will execute on the other thread and completely
-    // free the cpvt and pvt memory structures while this thread is waiting here!
-    usleep(50000); 
    
     /* TODO: write silence better ? */
     /* TODO: check end of bridge loop condition */
