@@ -108,8 +108,8 @@ int pcm_init(const char* dev, snd_pcm_stream_t stream, const struct ast_format* 
     unsigned int channels             = 1;
 
     const char* const stream_str = (stream == SND_PCM_STREAM_CAPTURE) ? "CAPTURE" : "PLAYBACK";
-
-    res = snd_pcm_open(&handle, dev, stream, SND_PCM_NONBLOCK);
+    /* === THE REFIX: DROP THE NON-BLOCKING EXCLUSIVITY FLAG === */
+    res = snd_pcm_open(&handle, dev, stream, 0); // Changed SND_PCM_NONBLOCK to 0
     if (res < 0) {
         ast_log(LOG_ERROR, "[ALSA][%s] Fail to open device - dev:'%s' err:'%s'\n", stream_str, dev, snd_strerror(res));
         return res;
