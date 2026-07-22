@@ -851,6 +851,7 @@ int at_enqueue_answer(struct cpvt* cpvt)
     const char* fmt;
 
     switch (cpvt->state) {
+		case CALL_STATE_ALERTING:  /* Fall through to treat alerting as an incoming ring */
         case CALL_STATE_INCOMING:
             fmt = AT_CMD(a);
             break;
