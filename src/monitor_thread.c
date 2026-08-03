@@ -103,9 +103,52 @@ static int reopen_audio_port(struct pvt* pvt)
 
     if (!PVT_NO_CHANS(pvt)) {
         struct cpvt* cpvt;
-        AST_LIST_TRAVERSE(&(pvt->chans), cpvt, entry) {
+        /* AST_LIST_TRAVERSE(&(pvt->chans), cpvt, entry) {
             ast_channel_set_fd(cpvt->channel, 0, pvt->audio_fd);
-        }
+        } */
+        
+        int lock_failed;
+
+        do {
+            lock_failed = 0;
+    
+            AST_LIST_TRAVERSE(&(pvt->chans), cpvt, entry) {
+                if (!cpvt || !cpvt->channel) {
+                    continue;
+                }
+    
+                struct ast_channel *chan = cpvt->channel;
+    
+                // Attempt to grab the channel lock safely without deadlocking
+                if (ast_channel_trylock(chan) == 0) {
+                    
+                    // Double check that the channel state hasn't dropped
+                    if (cpvt->channel == chan && ast_channel_state(chan) != AST_STATE_DOWN) {
+                        ast_channel_set_fd(chan, 0, pvt->audio_fd);
+                    }
+                    
+                    ast_channel_unlock(chan);
+                } else {
+                    // LOCK CONFLICT DETECTED: 
+                    // We must step back to avoid a deadlock trap, but we cannot 
+                    // unlock pvt->lock inside the traverse loop without corrupting it.
+                    lock_failed = 1;
+                    break; // Break completely out of the AST_LIST_TRAVERSE loop safely
+                }
+            }
+    
+            // If a lock failed, we handle the step-back safely out here 
+            // where the linked list is NOT actively being traversed.
+            if (lock_failed) {
+                ast_mutex_unlock(&pvt->lock);
+                usleep(1); // Yield to let Asterisk core complete its operations
+                ast_mutex_lock(&pvt->lock);
+                
+                // The list may have completely changed now. 
+                // The 'do-while' loop will restart traversal from the new list head.
+            }
+    
+        } while (lock_failed && !PVT_NO_CHANS(pvt));
     }
 
     return (pvt->audio_fd > 0);
@@ -140,12 +183,12 @@ static int check_dev_status(struct pvt* const pvt, struct ast_taskprocessor* tps
     switch (CONF_UNIQ(pvt, uac)) {
         case TRIBOOL_FALSE:
             if (tty_status(pvt->audio_fd, &err)) {
-              /*  if (reopen_audio_port(pvt)) {
+                if (reopen_audio_port(pvt)) {
                     ast_log(LOG_WARNING, "[%s][AUDIO][TTY] Lost connection: %s\n", PVT_ID(pvt), strerror(err));
-                } else { */
+                } else {
                     ast_log(LOG_ERROR, "[%s][AUDIO][TTY] Lost connection: %s\n", PVT_ID(pvt), strerror(err));
                     return -1;
-              /*  } */
+                }
             }
             break;
 
