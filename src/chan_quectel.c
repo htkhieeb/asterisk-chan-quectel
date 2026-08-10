@@ -351,6 +351,24 @@ static void dev_manager_threadproc_state(struct public_state* const state)
                 continue;
             }
 
+            // =================================================================
+            // BREAK THE INITIALIZATION TRAP (EXPLICIT CROSS-CHECK)
+            // =================================================================
+            // If the channel macro-lifecycle is fully running (Start), but the 
+            // internal protocol flags show that initialization aborted halfway 
+            // through (!initialized), step in and force a clean channel restart.
+            // =================================================================
+            if (pvt->desired_state == DEV_STATE_STARTED && 
+                pvt->current_state == DEV_STATE_STARTED && 
+                pvt->connected && 
+                !pvt->initialized) {
+                
+                ast_log(LOG_WARNING, "[dev-manager][%s] Channel is active but protocol initialization aborted. Breaking trap and forcing channel restart.\n", PVT_ID(pvt));
+                pvt->restart_time  = RESTATE_TIME_NOW;
+                pvt->desired_state = DEV_STATE_RESTARTED;
+            }
+            // =================================================================
+            
             if (pvt->restart_time != RESTATE_TIME_NOW) {
                 continue;
             }
