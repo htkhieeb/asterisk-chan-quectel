@@ -103,10 +103,10 @@ static int reopen_audio_port(struct pvt* pvt)
 
     if (!PVT_NO_CHANS(pvt)) {
         struct cpvt* cpvt;
-        /* AST_LIST_TRAVERSE(&(pvt->chans), cpvt, entry) {
+        AST_LIST_TRAVERSE(&(pvt->chans), cpvt, entry) {
             ast_channel_set_fd(cpvt->channel, 0, pvt->audio_fd);
-        } */
-        
+        }
+        /*
         int lock_failed;
 
         do {
@@ -149,6 +149,7 @@ static int reopen_audio_port(struct pvt* pvt)
             }
     
         } while (lock_failed && !PVT_NO_CHANS(pvt));
+        */
     }
 
     return (pvt->audio_fd > 0);
@@ -183,12 +184,12 @@ static int check_dev_status(struct pvt* const pvt, struct ast_taskprocessor* tps
     switch (CONF_UNIQ(pvt, uac)) {
         case TRIBOOL_FALSE:
             if (tty_status(pvt->audio_fd, &err)) {
-                if (reopen_audio_port(pvt)) {
+                /* if (reopen_audio_port(pvt)) {
                     ast_log(LOG_WARNING, "[%s][AUDIO][TTY] Lost connection: %s\n", PVT_ID(pvt), strerror(err));
-                } else {
+                } else { */
                     ast_log(LOG_ERROR, "[%s][AUDIO][TTY] Lost connection: %s\n", PVT_ID(pvt), strerror(err));
                     return -1;
-                }
+                /* } */
             }
             break;
 
