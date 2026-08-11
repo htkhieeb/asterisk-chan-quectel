@@ -181,6 +181,8 @@ typedef struct pvt {
     pvt_state_t state;     /*!< state */
     pvt_stat_t stat;       /*!< various statistics */
 
+    int init_fail_count;   /*!< CUSTOM, USER DEFINED: Sequential initialization failure watchdog counter: number of retrial attempts elapsed to restart the modem that is Start but Not initialized */
+
     struct ast_str empty_str; /*!< empty string */
 } pvt_t;
 
