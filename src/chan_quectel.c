@@ -352,20 +352,38 @@ static void dev_manager_threadproc_state(struct public_state* const state)
             }
 
             // =================================================================
-            // BREAK THE INITIALIZATION TRAP (EXPLICIT CROSS-CHECK)
-            // =================================================================
-            // If the channel macro-lifecycle is fully running (Start), but the 
-            // internal protocol flags show that initialization aborted halfway 
-            // through (!initialized), step in and force a clean channel restart.
+            // BREAK THE INITIALIZATION TRAP (STREAMLINED LOOPS)
             // =================================================================
             if (pvt->desired_state == DEV_STATE_STARTED && 
                 pvt->current_state == DEV_STATE_STARTED && 
                 pvt->connected && 
                 !pvt->initialized) {
                 
-                ast_log(LOG_WARNING, "[dev-manager][%s] Channel is active but protocol initialization aborted. Breaking trap and forcing channel restart.\n", PVT_ID(pvt));
-                pvt->restart_time  = RESTATE_TIME_NOW;
-                pvt->desired_state = DEV_STATE_RESTARTED;
+                pvt->init_fail_count++;
+                
+                // 1. PHASE 1: Try aggressively for 3 consecutive loops
+                if (pvt->init_fail_count <= 3) {
+                    ast_log(LOG_WARNING, "[dev-manager][%s] Initialization stalled (Attempt %d/3). Forcing clean channel restart.\n", 
+                            PVT_ID(pvt), pvt->init_fail_count);
+                            
+                    pvt->restart_time  = RESTATE_TIME_NOW;
+                    pvt->desired_state = DEV_STATE_RESTARTED;
+                } 
+                // 2. PHASE 2: Cooldown finished (10 cycles have passed).
+                // Reset to 0 to initiate a fresh series of 3 fast attempts.
+                else if (pvt->init_fail_count >= 13) {
+                    ast_log(LOG_WARNING, "[dev-manager][%s] Cooldown finished. Initiating a new series of restart.\n", PVT_ID(pvt));                    
+                    pvt->init_fail_count = 0;
+                } 
+                // 3. PHASE 3: Resting inside the 10-loop cooling window
+                else {
+                    ast_debug(2, "[dev-manager][%s] Sustained initialization lockup. Sleeping in cooldown window...\n", PVT_ID(pvt));
+                }
+            } 
+            else {
+                // Unconditional clear: whenever the modem is successfully initialized, 
+                // manually stopped, or transitioning states, keep the counter cleanly at 0.
+                pvt->init_fail_count = 0;
             }
             // =================================================================
             
