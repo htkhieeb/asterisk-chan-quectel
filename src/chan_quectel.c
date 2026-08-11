@@ -357,7 +357,8 @@ static void dev_manager_threadproc_state(struct public_state* const state)
             if (pvt->desired_state == DEV_STATE_STARTED && 
                 pvt->current_state == DEV_STATE_STARTED && 
                 pvt->connected && 
-                !pvt->initialized) {
+                !pvt->initialized &&
+                AST_LIST_EMPTY(&pvt->chans)) {
                 
                 pvt->init_fail_count++;
                 
