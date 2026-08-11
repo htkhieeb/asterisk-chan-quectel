@@ -1151,6 +1151,10 @@ static struct pvt* pvt_create(const pvt_config_t* settings)
     pvt->incoming_sms_type  = RES_UNKNOWN;
     pvt->desired_state      = SCONFIG(settings, init_state);
 
+    /* --- INITIALIZE WATCHDOG TRACKER HERE --- */
+    pvt->init_fail_count    = 0;
+    /* ---------------------------------------------- */
+    
     ast_string_field_init(pvt, 15);
     ast_string_field_set(pvt, provider_name, "NONE");
     ast_string_field_set(pvt, subscriber_number, NULL);
