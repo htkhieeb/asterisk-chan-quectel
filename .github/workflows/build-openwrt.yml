@@ -11,6 +11,7 @@ jobs:
       matrix:
         arch:
           - aarch64_cortex-a53
+          - aarch64_cortex-a76
         branch:
           - 24.10.0
 
